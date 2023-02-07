@@ -6,7 +6,7 @@
   <link href="http://example.com/atom.xml" rel="self"/>
   
   <link href="http://example.com/"/>
-  <updated>2023-01-30T07:34:02.151Z</updated>
+  <updated>2023-02-07T05:44:05.715Z</updated>
   <id>http://example.com/</id>
   
   <author>
@@ -17,13 +17,125 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>perceptions</title>
+    <link href="http://example.com/2023/02/07/perception/"/>
+    <id>http://example.com/2023/02/07/perception/</id>
+    <published>2023-02-07T05:42:31.000Z</published>
+    <updated>2023-02-07T05:44:05.715Z</updated>
+    
+    <content type="html"><![CDATA[<ol><li>快乐需要付出代价，要么遭受苦难，要么透支空虚。</li></ol>]]></content>
+    
+    
+    <summary type="html">some perceptions in life</summary>
+    
+    
+    
+    <category term="随笔" scheme="http://example.com/categories/%E9%9A%8F%E7%AC%94/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>solidity advanced study notes</title>
+    <link href="http://example.com/2023/02/03/solidity-study-adanced-notes/"/>
+    <id>http://example.com/2023/02/03/solidity-study-adanced-notes/</id>
+    <published>2023-02-03T05:35:02.000Z</published>
+    <updated>2023-02-03T07:15:59.305Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="接收ETH"><a href="#接收ETH" class="headerlink" title="接收ETH"></a>接收ETH</h2><ul><li>Solidity支持两种特殊的回调函数，receive()和fallback()，他们主要在两种情况下被使用：<ol><li>接收ETH</li><li>处理合约中不存在的函数调用（代理合约proxy contract）<br>  <strong>注意：</strong>在solidity 0.6.x版本之前，语法上只有 fallback() 函数，用来接收用户发送的ETH时调用以及在被调用函数签名没有匹配到时，来调用。 0.6版本之后，solidity才将 fallback() 函数拆分成 receive() 和 fallback() 两个函数。</li></ol></li></ul><h3 id="接收ETH函数-receive"><a href="#接收ETH函数-receive" class="headerlink" title="接收ETH函数 receive"></a>接收ETH函数 receive</h3><ul><li>receive()只用于处理接收ETH。一个合约最多有一个receive()函数，声明方式与一般函数不一样，不需要function关键字：receive() external payable { … }。receive()函数不能有任何的参数，不能返回任何值，必须包含external和payable。</li></ul><p>当合约接收ETH的时候，receive()会被触发。receive()最好不要执行太多的逻辑因为如果别人用send和transfer方法发送ETH的话，gas会限制在2300，receive()太复杂可能会触发Out of Gas报错；如果用call就可以自定义gas执行更复杂的逻辑（这三种发送ETH的方法我们之后会讲到）。</p><p>我们可以在receive()里发送一个event，例如：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 定义事件</span><br><span class="line">event Received(address Sender, uint Value);</span><br><span class="line">// 接收ETH时释放Received事件</span><br><span class="line">receive() external payable &#123;</span><br><span class="line">    emit Received(msg.sender, msg.value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>有些恶意合约，会在receive() 函数（老版本的话，就是 fallback() 函数）嵌入恶意消耗gas的内容或者使得执行故意失败的代码，导致一些包含退款和转账逻辑的合约不能正常工作，因此写包含退款等逻辑的合约时候，一定要注意这种情况。</p><h3 id="回退函数-fallback"><a href="#回退函数-fallback" class="headerlink" title="回退函数 fallback"></a>回退函数 fallback</h3><ul><li>fallback()函数会在调用合约不存在的函数时被触发。可用于接收ETH，也可以用于代理合约proxy contract。fallback()声明时不需要function关键字，必须由external修饰，一般也会用payable修饰，用于接收ETH:fallback() external payable { … }。</li></ul><p>我们定义一个fallback()函数，被触发时候会释放fallbackCalled事件，并输出msg.sender，msg.value和msg.data:</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// fallback</span><br><span class="line">fallback() external payable&#123;</span><br><span class="line">    emit fallbackCalled(msg.sender, msg.value, msg.data);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h2 id="发送ETH"><a href="#发送ETH" class="headerlink" title="发送ETH"></a>发送ETH</h2><h3 id="transfer"><a href="#transfer" class="headerlink" title="transfer"></a>transfer</h3><ul><li>用法是接收方地址.transfer(发送ETH数额)。</li><li>transfer()的gas限制是2300，足够用于转账，但对方合约的fallback()或receive()函数不能实现太复杂的逻辑。</li><li>transfer()如果转账失败，会自动revert（回滚交易）。<br>代码样例，注意里面的_to填ReceiveETH合约的地址，amount是ETH转账金额：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 用transfer()发送ETH</span><br><span class="line">function transferETH(address payable _to, uint256 amount) external payable&#123;</span><br><span class="line">    _to.transfer(amount);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li></ul><h3 id="sender"><a href="#sender" class="headerlink" title="sender"></a>sender</h3><ul><li>用法是接收方地址.send(发送ETH数额)。</li><li>send()的gas限制是2300，足够用于转账，但对方合约的fallback()或receive()函数不能实现太复杂的逻辑。</li><li>send()如果转账失败，不会revert。</li><li>send()的返回值是bool，代表着转账成功或失败，需要额外代码处理一下。<br>代码样例：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// send()发送ETH</span><br><span class="line">function sendETH(address payable _to, uint256 amount) external payable&#123;</span><br><span class="line">    // 处理下send的返回值，如果失败，revert交易并发送error</span><br><span class="line">    bool success = _to.send(amount);</span><br><span class="line">    if(!success)&#123;</span><br><span class="line">        revert SendFailed();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li></ul><h3 id="call"><a href="#call" class="headerlink" title="call"></a>call</h3><ul><li>用法是接收方地址.call{value: 发送ETH数额}(“”)。</li><li>call()没有gas限制，可以支持对方合约fallback()或receive()函数实现复杂逻辑。</li><li>call()如果转账失败，不会revert。</li><li>call()的返回值是(bool, data)，其中bool代表着转账成功或失败，需要额外代码处理一下。<br>代码样例：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// call()发送ETH</span><br><span class="line">function callETH(address payable _to, uint256 amount) external payable&#123;</span><br><span class="line">    // 处理下call的返回值，如果失败，revert交易并发送error</span><br><span class="line">    (bool success,) = _to.call&#123;value: amount&#125;(&quot;&quot;);</span><br><span class="line">    if(!success)&#123;</span><br><span class="line">        revert CallFailed();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li></ul><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul><li>call没有gas限制，最为灵活，是最提倡的方法；</li><li>transfer有2300 gas限制，但是发送失败会自动revert交易，是次优选择；</li><li>send有2300 gas限制，而且发送失败不会自动revert交易，几乎没有人用它。</li></ul>]]></content>
+    
+    
+    <summary type="html">solidity进阶学习笔记</summary>
+    
+    
+    
+    <category term="技术" scheme="http://example.com/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>block chain introduction</title>
+    <link href="http://example.com/2023/02/02/blockChain-introduction/"/>
+    <id>http://example.com/2023/02/02/blockChain-introduction/</id>
+    <published>2023-02-02T01:38:02.000Z</published>
+    <updated>2023-02-02T09:29:37.790Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="web3和web2的区别"><a href="#web3和web2的区别" class="headerlink" title="web3和web2的区别"></a>web3和web2的区别</h2><ul><li>介绍传统的web2应用，阐述web2应用的中心化特点，阐述传统中心化应用的痛点（可以引用暴雪的例子）。引出web3的概念，区块链技术是实现web3的主流方案。</li></ul><h2 id="介绍区块链的前世今生，从比特币到以太坊。"><a href="#介绍区块链的前世今生，从比特币到以太坊。" class="headerlink" title="介绍区块链的前世今生，从比特币到以太坊。"></a>介绍区块链的前世今生，从比特币到以太坊。</h2><h3 id="比特币"><a href="#比特币" class="headerlink" title="比特币"></a>比特币</h3><h3 id="以太坊"><a href="#以太坊" class="headerlink" title="以太坊"></a>以太坊</h3><h2 id="Dapp开发及展示"><a href="#Dapp开发及展示" class="headerlink" title="Dapp开发及展示"></a>Dapp开发及展示</h2>]]></content>
+    
+    
+    <summary type="html">区块链的介绍大纲</summary>
+    
+    
+    
+    <category term="技术" scheme="http://example.com/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>solidity study notes</title>
+    <link href="http://example.com/2023/02/01/solidity-study-notes/"/>
+    <id>http://example.com/2023/02/01/solidity-study-notes/</id>
+    <published>2023-02-01T09:59:02.000Z</published>
+    <updated>2023-02-03T03:03:41.969Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="solidit-入门"><a href="#solidit-入门" class="headerlink" title="solidit 入门"></a>solidit 入门</h2><h3 id="数值类型"><a href="#数值类型" class="headerlink" title="数值类型"></a>数值类型</h3><h4 id="Solidity中的变量类型"><a href="#Solidity中的变量类型" class="headerlink" title="Solidity中的变量类型"></a>Solidity中的变量类型</h4><ul><li>数值类型(Value Type)：包括布尔型，整数型等等，这类变量赋值时候直接传递数值。</li><li>引用类型(Reference Type)：包括数组和结构体，这类变量占空间大，赋值时候直接传递地址（类似指针）。</li><li>映射类型(Mapping Type): Solidity里的哈希表。</li><li>函数类型(Function Type)：Solidity文档里把函数归到数值类型，但我觉得他跟其他类型差别很大，所以单独分一类。</li></ul><h4 id="数值类型-1"><a href="#数值类型-1" class="headerlink" title="数值类型"></a>数值类型</h4><ol><li>布尔型<br>取值为true和false<br>布尔值的运算符和js相似</li><li>整型<br>常用包括<br><code>// 整型  int public _int = -1; // 整数，包括负数  uint public _uint = 1; // 正整数  uint256 public _number = 20220330; // 256位正整数</code></li><li>地址类型<br>地址类型(address)存储一个 20 字节的值（以太坊地址的大小）。地址类型也有成员变量，并作为所有合约的基础。有普通的地址和可以转账ETH的地址（payable）。其中，payable修饰的地址相对普通地址多了transfer和send两个成员。在payable修饰的地址中，send执行失败不会影响当前合约的执行（但是返回false值，需要开发人员检查send返回值）。balance和transfer()，可以用来查询ETH余额以及安全转账（内置执行失败的处理）。<br><code> // 地址  address public _address = 0x7A58c0Be72BE218B41C608b7Fe7C5bB630736C71;  address payable public _address1 = payable(_address); // payable address，可以转账、查余额  // 地址类型的成员  uint256 public balance = _address1.balance; // balance of address</code></li><li>定长字节数组<br>字节数组bytes分两种，一种定长（byte, bytes8, bytes32），另一种不定长。定长的属于数值类型，不定长的是引用类型（之后讲）。 定长bytes可以存一些数据，消耗gas比较少。<br><code> // 固定长度的字节数组  bytes32 public _byte32 = &quot;MiniSolidity&quot;;   bytes1 public _byte = _byte32[0]; </code><br>MiniSolidity变量以字节的方式存储进变量_byte32，转换成16进制为：0x4d696e69536f6c69646974790000000000000000000000000000000000000000</li></ol><p>_byte变量存储_byte32的第一个字节，为0x4d。<br>5. 枚举 enum<br>枚举（enum）是solidity中用户定义的数据类型。它主要用于为uint分配名称，使程序易于阅读和维护。它与C语言中的enum类似，使用名称来代替从0开始的uint：<br><code>    // 用enum将uint 0， 1， 2表示为Buy, Hold, Sell     enum ActionSet &#123; Buy, Hold, Sell &#125;     // 创建enum变量 action     ActionSet action = ActionSet.Buy;</code><br>它可以显式的和uint相互转换，并会检查转换的正整数是否在枚举的长度内，不然会报错：<br><code>    // enum可以和uint显式的转换     function enumToUint() external view returns(uint)&#123;         return uint(action);     &#125;</code></p><h4 id="函数类型"><a href="#函数类型" class="headerlink" title="函数类型"></a>函数类型</h4><ol><li><p>function：声明函数时的固定用法，想写函数，就要以function关键字开头。</p></li><li><p><function name>：函数名。</p></li><li><p>(<parameter types>)：圆括号里写函数的参数，也就是要输入到函数的变量类型和名字。</p></li><li><p>{internal|external|public|private}：函数可见性说明符，一共4种。没标明函数类型的，默认public。合约之外的函数，即”自由函数”，始终具有隐含internal可见性。</p><ul><li>public: 内部外部均可见。</li><li>private: 只能从本合约内部访问，继承的合约也不能用。</li><li>external: 只能从合约外部访问（但是可以用this.f()来调用，f是函数名）。</li><li>internal: 只能从合约内部访问，继承的合约可以用。<br> <strong>Note 1:</strong> 没有标明可见性类型的函数，默认为public。</li></ul><p> <strong>Note 2:</strong> public|private|internal 也可用于修饰状态变量。 public变量会自动生成同名的getter函数，用于查询数值。</p><p> <strong>Note 3:</strong> 没有标明可见性类型的状态变量，默认为internal。</p></li><li><p>[pure|view|payable]：决定函数权限&#x2F;功能的关键字。payable（可支付的）很好理解，带着它的函数，运行的时候可以给合约转入ETH。pure和view的介绍见下一节。</p></li><li><p>[returns ()]：函数返回的变量类型和名称。</p></li></ol><h4 id="函数输出"><a href="#函数输出" class="headerlink" title="函数输出"></a>函数输出</h4><h4 id="变量存储和作用域"><a href="#变量存储和作用域" class="headerlink" title="变量存储和作用域"></a>变量存储和作用域</h4><h4 id="数据位置"><a href="#数据位置" class="headerlink" title="数据位置"></a>数据位置</h4><ul><li>solidity数据存储位置有三类：storage，memory和calldata。不同存储位置的gas成本不同。storage类型的数据存在链上，类似计算机的硬盘，消耗gas多；memory和calldata类型的临时存在内存里，消耗gas少。大致用法：<ol><li>storage：合约里的状态变量默认都是storage，存储在链上。</li><li>memory：函数里的参数和临时变量一般用memory，存储在内存中，不上链。</li><li>calldata：和memory类似，存储在内存中，不上链。与memory的不同点在于calldata变量不能修改（immutable），一般用于函数的参数。</li></ol></li></ul><h4 id="引用类型"><a href="#引用类型" class="headerlink" title="引用类型"></a>引用类型</h4><h5 id="数组-Array"><a href="#数组-Array" class="headerlink" title="数组 Array"></a>数组 Array</h5><ul><li>数组（Array）是solidity常用的一种变量类型，用来存储一组数据（整数，字节，地址等等）。数组分为固定长度数组和可变长度数组两种：<ul><li>固定长度数组：在声明时指定数组的长度。用T[k]的格式声明，其中T是元素的类型，k是长度，例如：  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 固定长度 Array</span><br><span class="line">uint[8] array1;</span><br><span class="line">bytes1[5] array2;</span><br><span class="line">address[100] array3;</span><br></pre></td></tr></table></figure></li><li>可变长度数组（动态数组）：在声明时不指定数组的长度。用T[]的格式声明，其中T是元素的类型，例如：  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 可变长度 Array</span><br><span class="line">uint[] array4;</span><br><span class="line">bytes1[] array5;</span><br><span class="line">address[] array6;</span><br><span class="line">bytes array7;</span><br></pre></td></tr></table></figure><strong>注意：</strong> bytes比较特殊，是数组，但是不用加[]。另外，不能用byte[]声明单字节数组，可以使用bytes或bytes1[]。在gas上，bytes比bytes1[]便宜。因为bytes1[]在memory中要增加31个字节进行填充，会产生额外的gas。但是在storage中，由于内存紧密打包，不存在字节填充。</li></ul></li><li><h6 id="数组创建过程"><a href="#数组创建过程" class="headerlink" title="数组创建过程"></a>数组创建过程</h6></li></ul><p>在solidity里，创建数组有一些规则：</p><ul><li>对于memory修饰的动态数组，可以用new操作符来创建，但是必须声明长度，并且声明后长度不能改变。例子：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// memory动态数组</span><br><span class="line">uint[] memory array8 = new uint[](5);</span><br><span class="line">bytes memory array9 = new bytes(9);</span><br></pre></td></tr></table></figure></li><li>数组字面常数(Array Literals)是写作表达式形式的数组，用方括号包着来初始化array的一种方式，并且里面每一个元素的type是以第一个元素为准的，例如[1,2,3]里面所有的元素都是uint8类型，因为在solidity中如果一个值没有指定type的话，默认就是最小单位的该type，这里int的默认最小单位类型就是uint8。而[uint(1),2,3]里面的元素都是uint类型，因为第一个元素指定了是uint类型了，我们都以第一个元素为准。 下面的合约中，对于f函数里面的调用，如果我们没有显式对第一个元素进行uint强转的话，是会报错的，因为如上所述我们其实是传入了uint8类型的array，可是g函数需要的却是uint类型的array，就会报错了。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// SPDX-License-Identifier: GPL-3.0</span><br><span class="line">pragma solidity &gt;=0.4.16 &lt;0.9.0;</span><br><span class="line"></span><br><span class="line">contract C &#123;</span><br><span class="line">    function f() public pure &#123;</span><br><span class="line">        g([uint(1), 2, 3]);</span><br><span class="line">    &#125;</span><br><span class="line">    function g(uint[3] memory) public pure &#123;</span><br><span class="line">        // ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li><li>如果创建的是动态数组，你需要一个一个元素的赋值。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">uint[] memory x = new uint[](3);</span><br><span class="line">x[0] = 1;</span><br><span class="line">x[1] = 3;</span><br><span class="line">x[2] = 4;</span><br></pre></td></tr></table></figure></li><li><h6 id="数组成员"><a href="#数组成员" class="headerlink" title="数组成员"></a>数组成员</h6><ul><li>length: 数组有一个包含元素数量的length成员，memory数组的长度在创建后是固定的。</li><li>push(): 动态数组和bytes拥有push()成员，可以在数组最后添加一个0元素。</li><li>push(x): 动态数组和bytes拥有push(x)成员，可以在数组最后添加一个x元素。</li><li>pop(): 动态数组和bytes拥有pop()成员，可以移除数组最后一个元素。</li></ul></li></ul><h5 id="结构体-Struct"><a href="#结构体-Struct" class="headerlink" title="结构体 Struct"></a>结构体 Struct</h5><ul><li>Solidity支持通过构造结构体的形式定义新的类型。创建结构体的方法：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 结构体</span><br><span class="line">struct Student&#123;</span><br><span class="line">    uint256 id;</span><br><span class="line">    uint256 score; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li></ul><h4 id="映射类型"><a href="#映射类型" class="headerlink" title="映射类型"></a>映射类型</h4><h4 id="常数-constant和immutable"><a href="#常数-constant和immutable" class="headerlink" title="常数 constant和immutable"></a>常数 constant和immutable</h4>]]></content>
+    
+    
+    <summary type="html">solidity学习笔记</summary>
+    
+    
+    
+    <category term="技术" scheme="http://example.com/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>react hook learning notes</title>
+    <link href="http://example.com/2023/02/01/react-hook/"/>
+    <id>http://example.com/2023/02/01/react-hook/</id>
+    <published>2023-02-01T01:38:02.000Z</published>
+    <updated>2023-02-03T08:56:47.025Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="react-hook学习笔记"><a href="#react-hook学习笔记" class="headerlink" title="react hook学习笔记"></a>react hook学习笔记</h2><h3 id="useState"><a href="#useState" class="headerlink" title="useState"></a>useState</h3><ul><li>需要使用变量时，通过解构的方式使用useState()，参数为变量的初始值<code>const [productId, setProductId] = useState();</code></li><li>setProductId(更新数据)的两种方式<ol><li>直接调用函数传入新值，如<code>setProductId(newVal)</code></li><li>使用函数式更新，如<code>setProductId(()=&gt;&#123;return newVal&#125;)</code></li><li>如果定义的是引用类型变量如<code>const [teacher, setTeacher] = useState(&#123;name:&#39;Ryan&#39;,sex:&#39;man&#39;&#125;)</code>,更新时可以使用函数式更新并借助拓展运算符，如<code>setTeacher(()=&gt;&#123;return &#123;...teacher,name:&#39;Chris&#39;&#125;&#125;)</code>，把新的属性合并到新的对象中</li></ol></li></ul><h3 id="useState惰性初始化"><a href="#useState惰性初始化" class="headerlink" title="useState惰性初始化"></a>useState惰性初始化</h3><ul><li>惰性state<br>  initialState 参数只会在组件的初始渲染中起作用，后续渲染会被忽略</li><li>复杂初始state的定义<br>  初始state需要通过复杂计算获得，则可以传入一个函数，在函数中计算并返回初始的 state<br>  <strong>如果更新的数据与上次一样，React 将跳过子组件的渲染及 effect 的执行</strong></li></ul><h3 id="useContext"><a href="#useContext" class="headerlink" title="useContext"></a>useContext</h3><ol><li>把需要父子组件通信的数据使用createContext函数创建</li><li>在父组件中使用.Provider包裹子组件，把需要传递的数据通过父组件的value属性传递</li><li>在子组件中使用useContext方法获取到value传递的值</li></ol><h3 id="useEffect"><a href="#useEffect" class="headerlink" title="useEffect"></a>useEffect</h3><ul><li>React在完成对DOM的更新后会执行，默认情况下，React会在每次渲染后调用副作用函数，包括第一次渲染的时候</li><li>useEffect有两个参数，第一个参数是副作用的处理函数，第二参数是在与该副作用关联的状态或属性依赖数组</li><li>第二个参数为空数组时，表示该副作用函数不依赖任何值的变化，只在组件渲染后执行一次</li><li>useEffect相当于Vue生命周期中的mouted，在组件渲染后执行，它的return函数相当于destroy在下次渲染前执行</li></ul><h3 id="useReducer"><a href="#useReducer" class="headerlink" title="useReducer"></a>useReducer</h3><ul><li>useReducer接收3个参数，第一个参数是处理状态更新的reducer，第二个参数是状态初始值，第三个参数是状态初始化函数<code>const [state, dispathch] = userReducer(reducer, initialArg, init);</code></li></ul>]]></content>
+    
+    
+    <summary type="html">react hook学习笔记</summary>
+    
+    
+    
+    <category term="技术" scheme="http://example.com/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>git common commands</title>
+    <link href="http://example.com/2023/01/30/git-common-commands/"/>
+    <id>http://example.com/2023/01/30/git-common-commands/</id>
+    <published>2023-01-30T01:38:01.000Z</published>
+    <updated>2023-01-30T08:49:55.463Z</updated>
+    
+    
+    <summary type="html">git使用笔记</summary>
+    
+    
+    
+    <category term="技术" scheme="http://example.com/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>truffleUseMap</title>
     <link href="http://example.com/2023/01/30/truffleUseMap/"/>
     <id>http://example.com/2023/01/30/truffleUseMap/</id>
     <published>2023-01-30T01:38:01.000Z</published>
-    <updated>2023-01-30T07:34:02.151Z</updated>
+    <updated>2023-02-03T01:47:28.846Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="Truffle使用笔记"><a href="#Truffle使用笔记" class="headerlink" title="Truffle使用笔记"></a>Truffle使用笔记</h2><h3 id="geth相关"><a href="#geth相关" class="headerlink" title="geth相关"></a>geth相关</h3><h4 id="geth常用命令"><a href="#geth常用命令" class="headerlink" title="geth常用命令"></a>geth常用命令</h4><ul><li>geth启动命令<br>  <code>geth --datadir data --networkid 666 --http --http.port 8545 --allow-insecure-unlock console 2&gt;output.log console</code></li><li>geth解锁账号<br>  <code>personal.unlockAccount(&#39;account&#39;)</code> 然后输入密码 1234</li><li>定义一定金额 单位Wei<br>这里的数字采用字符串的形式输入，避免精度丢失<br>  <code>amt_1 = web3.utils.toWei(&#39;1&#39;, &#39;ether&#39;);</code></li></ul><h3 id="truffle相关"><a href="#truffle相关" class="headerlink" title="truffle相关"></a>truffle相关</h3><h4 id="truffle部署测试流程"><a href="#truffle部署测试流程" class="headerlink" title="truffle部署测试流程"></a>truffle部署测试流程</h4><ol><li>编译好合约后，使用命令truffle migration或者truffle depoly迁移（部署）合约，需要启动geth客户端，同时解锁账户，开始挖矿</li><li>部署完成后，使用命令turflle console进入js 控制台，控制台中有migrations里定义的对象，可以调用对象的deploy方法的回调测试合约的函数，如<br><code>EcommerceStore.deployed().then(function(i) &#123;i.getProduct.call(1).then(function(f) &#123;console.log(f)&#125;)&#125;)</code></li></ol><h3 id="solidity相关"><a href="#solidity相关" class="headerlink" title="solidity相关"></a>solidity相关</h3><ul><li>高版本的solidity中，强制要求所有string类型后面加上memory</li><li>now关键字已费用，采用block.timestamp代替</li><li>需要transfer的地址要加上payable关键字</li><li>keccak256用法<code>result =  keccak256(abi.encodePacked(value, fake, secret))</code></li></ul><h3 id="truffle-box-react相关"><a href="#truffle-box-react相关" class="headerlink" title="truffle-box-react相关"></a>truffle-box-react相关</h3><ul><li>合约交互代码写在ContractBtns组件中</li><li>Take a look at client&#x2F;src&#x2F;contexts&#x2F;EthContext. This context maintains a global state and provides web3.js functionalities to the rest of the app.</li></ul>]]></content>
+    <content type="html"><![CDATA[<h2 id="Truffle使用笔记"><a href="#Truffle使用笔记" class="headerlink" title="Truffle使用笔记"></a>Truffle使用笔记</h2><h3 id="geth相关"><a href="#geth相关" class="headerlink" title="geth相关"></a>geth相关</h3><h4 id="geth常用命令"><a href="#geth常用命令" class="headerlink" title="geth常用命令"></a>geth常用命令</h4><ul><li>geth启动命令<br>  <code>geth --datadir data --networkid 666 --http --http.port 8545 --allow-insecure-unlock console 2&gt;output.log console</code></li><li>geth解锁账号<br>  <code>personal.unlockAccount(&#39;account&#39;)</code> 然后输入密码 1234</li><li>定义一定金额 单位Wei<br>这里的数字采用字符串的形式输入，避免精度丢失<br>  <code>amt_1 = web3.utils.toWei(&#39;1&#39;, &#39;ether&#39;);</code></li></ul><h3 id="truffle相关"><a href="#truffle相关" class="headerlink" title="truffle相关"></a>truffle相关</h3><h4 id="truffle部署测试流程"><a href="#truffle部署测试流程" class="headerlink" title="truffle部署测试流程"></a>truffle部署测试流程</h4><ol><li>编译好合约后，使用命令truffle migration或者truffle depoly迁移（部署）合约，需要启动geth客户端，同时解锁账户，开始挖矿</li><li>部署完成后，使用命令turflle console进入js 控制台，控制台中有migrations里定义的对象，可以调用对象的deploy方法的回调测试合约的函数，如<br><code>EcommerceStore.deployed().then(function(i) &#123;i.getProduct.call(1).then(function(f) &#123;console.log(f)&#125;)&#125;)</code></li></ol><h3 id="solidity相关"><a href="#solidity相关" class="headerlink" title="solidity相关"></a>solidity相关</h3><ul><li>高版本的solidity中，强制要求所有string类型后面加上memory</li><li>now关键字已废用，采用block.timestamp代替</li><li>需要transfer的地址要加上payable关键字</li><li>keccak256用法<code>result =  keccak256(abi.encodePacked(value, fake, secret))</code></li></ul><h3 id="truffle-box-react相关"><a href="#truffle-box-react相关" class="headerlink" title="truffle-box-react相关"></a>truffle-box-react相关</h3><ul><li>合约交互代码写在ContractBtns组件中</li><li>Take a look at client&#x2F;src&#x2F;contexts&#x2F;EthContext. This context maintains a global state and provides web3.js functionalities to the rest of the app.</li></ul>]]></content>
     
     
     <summary type="html">truffle使用笔记</summary>
@@ -54,29 +166,6 @@
     
     
     
-    
-  </entry>
-  
-  <entry>
-    <title>Hexo-Theme-Sakura</title>
-    <link href="http://example.com/2018/12/12/02/"/>
-    <id>http://example.com/2018/12/12/02/</id>
-    <published>2018-12-12T14:16:01.000Z</published>
-    <updated>2023-01-25T11:49:57.382Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="我的第一篇博文"><a href="#我的第一篇博文" class="headerlink" title="我的第一篇博文"></a>我的第一篇博文</h2><ul><li>测试</li><li>测试</li><li>测试</li></ul>]]></content>
-    
-    
-    <summary type="html">hexo-sakura主题使用教程</summary>
-    
-    
-    
-    <category term="转载" scheme="http://example.com/categories/%E8%BD%AC%E8%BD%BD/"/>
-    
-    
-    <category term="web" scheme="http://example.com/tags/web/"/>
-    
-    <category term="悦读" scheme="http://example.com/tags/%E6%82%A6%E8%AF%BB/"/>
     
   </entry>
   
