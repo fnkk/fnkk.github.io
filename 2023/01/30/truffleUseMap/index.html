@@ -187,9 +187,9 @@
                       </li>
                     
                       <li>
-                        <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                        <a href="/categories/%E6%83%85%E6%84%9F/">
                           <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                          生活
+                          情感
                         </a>
                       </li>
                     
@@ -352,6 +352,9 @@
 <li>geth启动命令<br>  <code>geth --datadir data --networkid 666 --http --http.port 8545 --allow-insecure-unlock console 2&gt;output.log console</code></li>
 <li>geth解锁账号<br>  <code>personal.unlockAccount(&#39;account&#39;)</code> 然后输入密码 1234</li>
 <li>定义一定金额 单位Wei<br>这里的数字采用字符串的形式输入，避免精度丢失<br>  <code>amt_1 = web3.utils.toWei(&#39;1&#39;, &#39;ether&#39;);</code></li>
+<li>geth转账ETH<br>  <code>eth.sendTransaction(&#123;from:a,to:b,value:web3.toWei(20,&quot;ether&quot;)&#125;)</code></li>
+<li>wei转ether<br>  <code>web3.fromWei(numer,&#39;ether&#39;)</code></li>
+<li>data 文件夹大小 5.35&#x2F;5.44MB  5.10&#x2F;7.62MB</li>
 </ul>
 <h3 id="truffle相关"><a href="#truffle相关" class="headerlink" title="truffle相关"></a>truffle相关</h3><h4 id="truffle部署测试流程"><a href="#truffle部署测试流程" class="headerlink" title="truffle部署测试流程"></a>truffle部署测试流程</h4><ol>
 <li>编译好合约后，使用命令truffle migration或者truffle depoly迁移（部署）合约，需要启动geth客户端，同时解锁账户，开始挖矿</li>
@@ -644,9 +647,9 @@ $(document).ready(function() {
               </li>
             
               <li>
-                <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                <a href="/categories/%E6%83%85%E6%84%9F/">
                   <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                  生活
+                  情感
                 </a>
               </li>
             

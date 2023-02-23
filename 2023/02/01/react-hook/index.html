@@ -187,9 +187,9 @@
                       </li>
                     
                       <li>
-                        <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                        <a href="/categories/%E6%83%85%E6%84%9F/">
                           <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                          生活
+                          情感
                         </a>
                       </li>
                     
@@ -374,8 +374,20 @@
 </ul>
 <h3 id="useReducer"><a href="#useReducer" class="headerlink" title="useReducer"></a>useReducer</h3><ul>
 <li>useReducer接收3个参数，第一个参数是处理状态更新的reducer，第二个参数是状态初始值，第三个参数是状态初始化函数<code>const [state, dispathch] = userReducer(reducer, initialArg, init);</code></li>
+<li>指定初始state<ol>
+<li>将初始state作为第二个参数传入  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">const [state, dispatch] = useReducer(</span><br><span class="line">    reducer,</span><br><span class="line">    &#123;count: initialCount&#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li>
+<li>惰性初始化， 将第二个参数作为第三个函数入参传入  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
 </ul>
-
+<h3 id="useCallback"><a href="#useCallback" class="headerlink" title="useCallback"></a>useCallback</h3><ul>
+<li></li>
+</ul>
+<h3 id="useMemo"><a href="#useMemo" class="headerlink" title="useMemo"></a>useMemo</h3><ul>
+<li>useMemo传入的函数内部需要有返回值</li>
+<li>useMemo只能声明在函数式组件内部</li>
+</ul>
+<h3 id="react-route"><a href="#react-route" class="headerlink" title="react-route"></a>react-route</h3>
         </div>
         <!-- .entry-content -->
         <div class="single-reward">
@@ -652,9 +664,9 @@ $(document).ready(function() {
               </li>
             
               <li>
-                <a href="/categories/%E7%94%9F%E6%B4%BB/">
+                <a href="/categories/%E6%83%85%E6%84%9F/">
                   <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                  生活
+                  情感
                 </a>
               </li>
             
