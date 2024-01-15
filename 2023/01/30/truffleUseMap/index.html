@@ -350,11 +350,12 @@
         <div class="entry-content">
           <h2 id="Truffle使用笔记"><a href="#Truffle使用笔记" class="headerlink" title="Truffle使用笔记"></a>Truffle使用笔记</h2><h3 id="geth相关"><a href="#geth相关" class="headerlink" title="geth相关"></a>geth相关</h3><h4 id="geth常用命令"><a href="#geth常用命令" class="headerlink" title="geth常用命令"></a>geth常用命令</h4><ul>
 <li>geth启动命令<br>  <code>geth --datadir data --networkid 666 --http --http.port 8545 --allow-insecure-unlock console 2&gt;output.log console</code></li>
+<li>geth启动命令(开启WS服务,默认端口8456)<br>  <code>geth --datadir data --networkid 666 --ws --http --http.port 8545 --allow-insecure-unlock console 2&gt;output.log console</code></li>
 <li>geth解锁账号<br>  <code>personal.unlockAccount(&#39;account&#39;)</code> 然后输入密码 1234</li>
 <li>定义一定金额 单位Wei<br>这里的数字采用字符串的形式输入，避免精度丢失<br>  <code>amt_1 = web3.utils.toWei(&#39;1&#39;, &#39;ether&#39;);</code></li>
 <li>geth转账ETH<br>  <code>eth.sendTransaction(&#123;from:a,to:b,value:web3.toWei(20,&quot;ether&quot;)&#125;)</code></li>
 <li>wei转ether<br>  <code>web3.fromWei(numer,&#39;ether&#39;)</code></li>
-<li>data 文件夹大小 5.35&#x2F;5.44MB  5.10&#x2F;7.62MB</li>
+<li>data 文件夹大小 5.35&#x2F;5.44MB  5.10&#x2F;7.62MB    8.76&#x2F;8.82MB</li>
 </ul>
 <h3 id="truffle相关"><a href="#truffle相关" class="headerlink" title="truffle相关"></a>truffle相关</h3><h4 id="truffle部署测试流程"><a href="#truffle部署测试流程" class="headerlink" title="truffle部署测试流程"></a>truffle部署测试流程</h4><ol>
 <li>编译好合约后，使用命令truffle migration或者truffle depoly迁移（部署）合约，需要启动geth客户端，同时解锁账户，开始挖矿</li>
@@ -370,6 +371,15 @@
 <li>合约交互代码写在ContractBtns组件中</li>
 <li>Take a look at client&#x2F;src&#x2F;contexts&#x2F;EthContext. This context maintains a global state and provides web3.js functionalities to the rest of the app.</li>
 </ul>
+<h3 id="node-mongo-的链下生态"><a href="#node-mongo-的链下生态" class="headerlink" title="node + mongo 的链下生态"></a>node + mongo 的链下生态</h3><ul>
+<li>第二个视频 19分 定义mongoose相关</li>
+<li></li>
+</ul>
+<h3 id="研究方法"><a href="#研究方法" class="headerlink" title="研究方法"></a>研究方法</h3><ol>
+<li>基于ERC-721的非同质化货币铸造的研究。<br>数字藏品交易系统中的数字藏品就是一个非同质化货币，ERC721是一种以太坊代币标准，它是一种非同质化代币智能合约标准接口。因此，只要重写该接口的方法，就能初步完成铸造，使数字藏品获得唯一的标识符(token ID)，和确权交易等功能，可以在此基础上完成盲盒、空投、拍卖等其他复杂功能。</li>
+<li>基于geth客户端的区块链环境。<br>geth是以太坊客户端之一，通过运行geth节点，用户可以访问以太坊网络，并可以进行交易、挖矿、部署智能合约等操作。通过geth客户端在本地生成一条以太坊私链，用于部署智能合约。geth还提供了一些常用的命令行工具，如管理账户、查询交易历史、查看节点同步状态等。</li>
+<li>基于IFPS的资源去中心化存储。<br>由于数字藏品交易系统有大量的图片资源，这些占用大量存储空间的资源直接存入区块链的话效率低且消耗大量gas。IFPS是一个点对点的分布式文件系统，它的设计理念和技术架构对于实现分布式的、去中心化的应用程序非常有帮助。我们将这些占用大量存储空间的资源上传到IFPS中，它会返回一个哈希，我们只将这个哈希存到区块链中，在前端页面中通过这个哈希去找到对应的资源。</li>
+</ol>
 
         </div>
         <!-- .entry-content -->
@@ -419,15 +429,15 @@
           
             <div class="post-nepre half next">
           
-            <a href="/2023/01/24/hello-world/" rel="next">
+            <a href="/2018/12/12/Hexo-Theme-Sakura/" rel="next">
               <div class="background">
-                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="https://static.2heng.xin/wp-content/uploads//2019/02/wallhaven-672007-1-1024x576.png" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="https://static.2heng.xin/wp-content/uploads//2019/02/wallhaven-672007-1-1024x576.png">
               </div>
               <span class="label">
               Next Post</span>
               <div class="info">
                 <h3>
-                Hello World</h3>
+                Hexo-Theme-Sakura</h3>
                 <hr>
               </div>
             </a>
@@ -503,7 +513,7 @@
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2023 fnkk<br>
+      &copy; 2024 fnkk<br>
       powered_by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
