@@ -366,6 +366,8 @@
 <li>我最开始是这样写的，但是输出的结果的长度有问题，检查后推测是newArr这里可能引用了同样的地址，导致后面的结果继续push到已经存入res的结果中，于是改为下面的写法，成功通过了测试。</li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">var permute = function (nums) &#123;</span><br><span class="line">    let res = []</span><br><span class="line">    dfs(nums,[])</span><br><span class="line">    function dfs(nums, arr) &#123;</span><br><span class="line">        if (nums.length == 0) &#123;</span><br><span class="line">            res.push(arr)</span><br><span class="line">            return</span><br><span class="line">        &#125;</span><br><span class="line">        for (let i = 0; i &lt; nums.length; i++) &#123;</span><br><span class="line">            let temp = [...nums.slice(0, i), ...nums.slice(i + 1)]</span><br><span class="line">            dfs(temp, [...arr,nums[i]])</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return res</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>全排列是众多递归题目的基础，许多回溯和剪枝的操作都是在这个基础上的，要好好掌握。</p>
+
         </div>
         <!-- .entry-content -->
         <div class="single-reward">
@@ -393,9 +395,26 @@
       <div class="toc" style="background: none;"></div>
       <section class="post-squares nextprev">
         
+          
+            <div class="post-nepre half previous">
+          
+            <a href="/2024/01/16/React-01/" rel="prev">
+              <div class="background">
+                <img class="lazyload" src="https://cdn.jsdelivr.net/gh/honjun/cdn@1.6/img/loader/orange.progress-bar-stripe-loader.svg" data-src="" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" onerror="imgError(this,3)" src="">
+              </div>
+              <span class="label">
+              Previous Post</span>
+              <div class="info">
+                <h3>
+                React-01</h3>
+                <hr>
+              </div>
+            </a>
+          </div>
+        
         
           
-            <div class="post-nepre full next">
+            <div class="post-nepre half next">
           
             <a href="/2023/10/14/hangzhouHackthon/" rel="next">
               <div class="background">
